@@ -1,0 +1,102 @@
+name: APK
+
+# Builds the demo APK in the cloud, so no Flutter SDK is needed locally.
+# Runs on every push, and can be started by hand from the Actions tab
+# ("Run workflow"). The finished APKs are attached to the run as artifacts.
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Versions
+        run: |
+          flutter --version
+          java -version
+
+      - name: Dependencies
+        run: flutter pub get
+
+      # Errors and warnings stop the run (they would break the build anyway);
+      # style-level infos are reported but do not cost you an APK.
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      # A failing test is worth seeing, but it should not block the demo build.
+      - name: Test
+        continue-on-error: true
+        run: flutter test --reporter expanded
+
+      # The Gradle files checked into android/ are pinned to AGP 8.7.3 /
+      # Gradle 8.12. If this runner's Flutter wants a different combination the
+      # first build fails, and the retry below regenerates them from the SDK
+      # that is actually installed here. See tool/setup_android.sh.
+      - name: Build release APK
+        id: apk
+        continue-on-error: true
+        run: flutter build apk --release
+
+      - name: Realign Gradle with this Flutter version and retry
+        if: steps.apk.outcome == 'failure'
+        run: |
+          bash tool/setup_android.sh
+          flutter build apk --release
+
+      - name: Build per-ABI APKs
+        run: flutter build apk --release --split-per-abi
+
+      - name: The release APK must not ask for INTERNET
+        run: |
+          apk=build/app/outputs/flutter-apk/app-release.apk
+          aapt2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort | tail -1)
+          echo "Using $aapt2"
+          "$aapt2" dump permissions "$apk" || true
+          if "$aapt2" dump permissions "$apk" | grep -q "android.permission.INTERNET"; then
+            echo "::error::the release APK declares INTERNET — the demo must stay offline"
+            exit 1
+          fi
+          echo "OK: no INTERNET permission."
+
+      - name: Sizes
+        run: ls -lh build/app/outputs/flutter-apk/*.apk
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: yaqinda-apk
+          path: build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+          if-no-files-found: error
+
+      # Pushing a tag such as `v1.0` also publishes a GitHub Release with the
+      # universal APK attached, which is the easiest thing to send to someone.
+      - name: Publish a release for tags
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/flutter-apk/app-release.apk
+          body: |
+            Yaqinda demo APK — offline, xaridor va doʻkon rejimi bitta ilovada.
+            Debug kalit bilan imzolangan: faqat demo uchun.

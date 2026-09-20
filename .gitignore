@@ -1,0 +1,19 @@
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+android/local.properties
+android/.gradle/
+android/gradlew
+android/gradlew.bat
+android/gradle/wrapper/gradle-wrapper.jar
+android/app/debug/
+android/app/release/
+*.iml
+.idea/
+.vscode/
+
+# The original mini app sources and design mockups stay local: this
+# repository is public. Remove this line to publish them.
+reference/

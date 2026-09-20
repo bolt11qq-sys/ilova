@@ -1,0 +1,12 @@
+include: package:flutter_lints/flutter.yaml
+
+# The purely cosmetic `const` lints are switched off: the project is written to
+# be read, and `dart fix --apply` can add the missing `const`s at any time.
+linter:
+  rules:
+    prefer_const_constructors: false
+    prefer_const_literals_to_create_immutables: false
+    prefer_const_declarations: false
+    constant_identifier_names: false
+    avoid_print: true
+    use_build_context_synchronously: true
