@@ -3,6 +3,10 @@ name: APK
 # Builds the demo APK in the cloud, so no Flutter SDK is needed locally.
 # Runs on every push, and can be started by hand from the Actions tab
 # ("Run workflow"). The finished APKs are attached to the run as artifacts.
+#
+# Every checking step writes its output to the run summary as well as the log,
+# so a failure can be read from the run page without digging into the log
+# viewer. The steps do not stop the run: a final "Verdict" step decides.
 
 on:
   push:
@@ -14,7 +18,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
       - uses: actions/checkout@v4
@@ -33,21 +37,51 @@ jobs:
 
       - name: Versions
         run: |
+          {
+            echo "## Toolchain"
+            echo '```'
+            flutter --version
+            java -version 2>&1
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
           flutter --version
-          java -version
 
       - name: Dependencies
         run: flutter pub get
 
-      # Errors and warnings stop the run (they would break the build anyway);
-      # style-level infos are reported but do not cost you an APK.
       - name: Analyze
-        run: flutter analyze --no-fatal-infos
-
-      # A failing test is worth seeing, but it should not block the demo build.
-      - name: Test
+        id: analyze
         continue-on-error: true
-        run: flutter test --reporter expanded
+        run: |
+          set +e
+          flutter analyze --no-fatal-infos > analyze.txt 2>&1
+          status=$?
+          {
+            echo "## flutter analyze — exit $status"
+            echo ''
+            echo '```'
+            cat analyze.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat analyze.txt
+          exit $status
+
+      - name: Test
+        id: test
+        continue-on-error: true
+        run: |
+          set +e
+          flutter test > test.txt 2>&1
+          status=$?
+          {
+            echo "## flutter test — exit $status"
+            echo ''
+            echo '```'
+            tail -n 200 test.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat test.txt
+          exit $status
 
       # The Gradle files checked into android/ are pinned to AGP 8.7.3 /
       # Gradle 8.12. If this runner's Flutter wants a different combination the
@@ -56,47 +90,97 @@ jobs:
       - name: Build release APK
         id: apk
         continue-on-error: true
-        run: flutter build apk --release
+        run: |
+          set +e
+          flutter build apk --release > build.txt 2>&1
+          status=$?
+          {
+            echo "## flutter build apk — exit $status"
+            echo ''
+            echo '```'
+            tail -n 120 build.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat build.txt
+          exit $status
 
       - name: Realign Gradle with this Flutter version and retry
+        id: retry
         if: steps.apk.outcome == 'failure'
+        continue-on-error: true
         run: |
-          bash tool/setup_android.sh
-          flutter build apk --release
+          set +e
+          bash tool/setup_android.sh > realign.txt 2>&1
+          flutter build apk --release >> realign.txt 2>&1
+          status=$?
+          {
+            echo "## Gradle realign + rebuild — exit $status"
+            echo ''
+            echo '```'
+            tail -n 120 realign.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat realign.txt
+          exit $status
 
       - name: Build per-ABI APKs
+        if: steps.apk.outcome == 'success' || steps.retry.outcome == 'success'
+        continue-on-error: true
         run: flutter build apk --release --split-per-abi
 
       - name: The release APK must not ask for INTERNET
+        if: steps.apk.outcome == 'success' || steps.retry.outcome == 'success'
         run: |
           apk=build/app/outputs/flutter-apk/app-release.apk
           aapt2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort | tail -1)
-          echo "Using $aapt2"
           "$aapt2" dump permissions "$apk" || true
           if "$aapt2" dump permissions "$apk" | grep -q "android.permission.INTERNET"; then
             echo "::error::the release APK declares INTERNET — the demo must stay offline"
             exit 1
           fi
-          echo "OK: no INTERNET permission."
-
-      - name: Sizes
-        run: ls -lh build/app/outputs/flutter-apk/*.apk
+          {
+            echo "## Permissions"
+            echo ''
+            echo 'OK: the release APK declares no INTERNET permission.'
+            echo ''
+            echo '```'
+            ls -lh build/app/outputs/flutter-apk/*.apk
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload APKs
+        if: steps.apk.outcome == 'success' || steps.retry.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: yaqinda-apk
           path: build/app/outputs/flutter-apk/*.apk
           retention-days: 30
-          if-no-files-found: error
+          if-no-files-found: warn
 
       # Pushing a tag such as `v1.0` also publishes a GitHub Release with the
       # universal APK attached, which is the easiest thing to send to someone.
       - name: Publish a release for tags
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') && (steps.apk.outcome == 'success' || steps.retry.outcome == 'success')
         uses: softprops/action-gh-release@v2
         with:
           files: build/app/outputs/flutter-apk/app-release.apk
           body: |
             Yaqinda demo APK — offline, xaridor va doʻkon rejimi bitta ilovada.
             Debug kalit bilan imzolangan: faqat demo uchun.
+
+      - name: Verdict
+        run: |
+          echo "analyze: ${{ steps.analyze.outcome }}"
+          echo "test:    ${{ steps.test.outcome }}"
+          echo "build:   ${{ steps.apk.outcome }} (retry: ${{ steps.retry.outcome }})"
+          if [ "${{ steps.analyze.outcome }}" != "success" ]; then
+            echo "::error::flutter analyze failed — see the run summary"
+            exit 1
+          fi
+          if [ "${{ steps.apk.outcome }}" != "success" ] && [ "${{ steps.retry.outcome }}" != "success" ]; then
+            echo "::error::the APK did not build — see the run summary"
+            exit 1
+          fi
+          if [ "${{ steps.test.outcome }}" != "success" ]; then
+            echo "::warning::some tests failed — the APK was still built"
+          fi
