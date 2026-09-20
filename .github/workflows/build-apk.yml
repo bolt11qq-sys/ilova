@@ -83,8 +83,8 @@ jobs:
           cat test.txt
           exit $status
 
-      # The Gradle files checked into android/ are pinned to AGP 8.7.3 /
-      # Gradle 8.12. If this runner's Flutter wants a different combination the
+      # The Gradle files checked into android/ are pinned to AGP 8.10.1 /
+      # Gradle 8.14.3. If this runner's Flutter wants a different combination the
       # first build fails, and the retry below regenerates them from the SDK
       # that is actually installed here. See tool/setup_android.sh.
       - name: Build release APK

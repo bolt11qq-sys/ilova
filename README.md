@@ -41,8 +41,8 @@ listing. R8 and resource shrinking are off (see DECISIONS.md).
 
 ### If Gradle complains
 
-`android/` ships hand-written Gradle files (AGP 8.7.3, Kotlin 2.1.0, Gradle
-8.12). If your Flutter version wants something else, regenerate just the build
+`android/` ships hand-written Gradle files (AGP 8.10.1, Kotlin 2.1.21,
+Gradle 8.14.3). If your Flutter version wants something else, regenerate just the build
 scripts from your own SDK — everything of ours (manifests, `MainActivity.kt`,
 icons, styles) is kept:
 

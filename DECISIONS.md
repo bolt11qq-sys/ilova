@@ -101,7 +101,9 @@ delays off. Test code also injects a `MemoryStore`, so no test touches a plugin.
   stubs that Flutter's embedding references are the usual reason a release
   build fails. A demo APK gains little from shrinking. `proguard-rules.pro`
   stays in the tree for whoever turns R8 back on.
-* The Gradle files are hand-written for AGP 8.7.3 / Kotlin 2.1.0 / Gradle 8.12.
+* The Gradle files are hand-written for AGP 8.10.1 / Kotlin 2.1.21 / Gradle
+  8.14.3. Flutter refuses anything below Gradle 8.14, which is what the first
+  cloud build tripped over.
   `tool/setup_android.ps1` (and `.sh`) regenerates them from the user's own
   Flutter version if that combination does not fit.
 
