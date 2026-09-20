@@ -237,10 +237,12 @@ class _ShopHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: 7),
                     StatusTag(
+                      // A 24/7 shop has no closing time to name.
                       label: shop.isOpen
-                          ? t('sp.until', {
-                              'time': shop.hoursLabel.split('–').last,
-                            })
+                          ? (shop.hoursLabel.contains('–')
+                              ? t('sp.until',
+                                  {'time': shop.hoursLabel.split('–').last})
+                              : '${t('shop.open')} · ${shop.hoursLabel}')
                           : (shop.opensLabel == null
                               ? t('shop.closed')
                               : t('shop.closedOpens',

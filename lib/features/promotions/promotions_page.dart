@@ -81,8 +81,7 @@ class _PromotionsPageState extends ConsumerState<PromotionsPage> {
                     }
                     final now = DateTime.now().millisecondsSinceEpoch;
                     return GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(
-                          screenPadding, 0, screenPadding, 110),
+                      padding: EdgeInsets.fromLTRB(screenPadding, 0, screenPadding, bottomBarSpace(context)),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,

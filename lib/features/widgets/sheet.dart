@@ -18,6 +18,9 @@ Future<T?> showYSheet<T>({
     context: context,
     isScrollControlled: isScrollControlled,
     useSafeArea: true,
+    // Without this the sheet is mounted on the tab's own navigator and the
+    // floating bottom bar sits on top of it, hiding the buttons.
+    useRootNavigator: true,
     backgroundColor: yt(context).surface,
     builder: builder,
   );

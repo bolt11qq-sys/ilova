@@ -116,8 +116,7 @@ class ShopOrdersPage extends ConsumerWidget {
         ref.invalidate(shopStatsProvider);
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-            screenPadding, 0, screenPadding, 110),
+        padding: EdgeInsets.fromLTRB(screenPadding, 0, screenPadding, bottomBarSpace(context)),
         children: [
           if (fresh.isNotEmpty) ...[
             heading(S.orders.fresh, fresh.length),

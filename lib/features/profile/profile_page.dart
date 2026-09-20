@@ -36,8 +36,7 @@ class ProfilePage extends ConsumerWidget {
         child: SafeArea(
           bottom: false,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(
-                screenPadding, 12, screenPadding, 110),
+            padding: EdgeInsets.fromLTRB(screenPadding, 12, screenPadding, bottomBarSpace(context)),
             children: [
               Text(
                 t('pf.title'),
@@ -126,7 +125,7 @@ class ProfilePage extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: sectionGap),
               Text(
                 t('pf.addresses'),
                 style: TextStyle(
@@ -153,7 +152,7 @@ class ProfilePage extends ConsumerWidget {
                   await showAddressForm(context, ref);
                 },
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: sectionGap),
               YCard(
                 padding: EdgeInsets.zero,
                 child: Column(
@@ -184,7 +183,7 @@ class ProfilePage extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: sectionGap),
               YCard(
                 color: tok.mint,
                 shadow: false,
@@ -228,7 +227,7 @@ class ProfilePage extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: sectionGap),
               YCard(
                 padding: EdgeInsets.zero,
                 child: YRow(

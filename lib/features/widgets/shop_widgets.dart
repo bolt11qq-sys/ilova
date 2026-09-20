@@ -21,14 +21,23 @@ class ShopRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tok = yt(context);
-    final facts = <String>[
-      if (shop.delivers)
-        t('shops.fee', {'sum': formatPrice(shop.deliveryFee)})
-      else
-        t('shop.pickupOnly'),
-      if (shop.delivers && shop.deliveryTimeText.isNotEmpty)
-        shop.deliveryTimeText,
-    ];
+
+    /// A small icon + label pill, so the facts wrap instead of being cut off.
+    Widget fact(IconData icon, String label) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: tok.hint),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                color: tok.hint,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        );
 
     return Material(
       color: tok.surface,
@@ -37,7 +46,7 @@ class ShopRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(YRadius.card),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(13),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,15 +54,16 @@ class ShopRow extends StatelessWidget {
                 color: hexColor(shop.logoBg),
                 icon: shopIcon(shop.icon),
                 photo: shop.photo,
-                size: 52,
+                size: 56,
                 dimmed: !shop.isOpen,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 13),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: Text(
@@ -61,23 +71,23 @@ class ShopRow extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 16.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.2,
                               color: tok.text,
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         StatusTag(
-                          label: shop.isOpen
-                              ? t('shop.open')
-                              : t('shop.closed'),
+                          label:
+                              shop.isOpen ? t('shop.open') : t('shop.closed'),
                           tone: shop.isOpen ? TagTone.success : TagTone.neutral,
                           small: true,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 4),
                     Text(
                       '${shop.type} · ${formatKm(shop.distanceKm)}',
                       maxLines: 1,
@@ -85,7 +95,7 @@ class ShopRow extends StatelessWidget {
                       style: TextStyle(fontSize: 13, color: tok.hint),
                     ),
                     if (!shop.isOpen && shop.opensLabel != null) ...[
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
                       Text(
                         shop.opensLabel!,
                         style: TextStyle(
@@ -95,25 +105,32 @@ class ShopRow extends StatelessWidget {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 6),
-                    Row(
+                    const SizedBox(height: 9),
+                    Wrap(
+                      spacing: 14,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Expanded(
-                          child: Text(
-                            facts.join(' · '),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 12.5, color: tok.hint),
-                          ),
-                        ),
-                        if (shop.promoCount > 0) ...[
-                          const SizedBox(width: 8),
+                        if (shop.delivers)
+                          fact(
+                            Icons.delivery_dining_rounded,
+                            shop.deliveryFee == 0
+                                ? t('shop.free')
+                                : formatPrice(shop.deliveryFee),
+                          )
+                        else
+                          fact(Icons.storefront_rounded, t('shop.pickupOnly')),
+                        if (shop.delivers && shop.deliveryTimeText.isNotEmpty)
+                          fact(Icons.schedule_rounded, shop.deliveryTimeText),
+                        if (shop.delivers && shop.minOrder > 0)
+                          fact(Icons.shopping_basket_rounded,
+                              t('sp.min', {'sum': formatPrice(shop.minOrder)})),
+                        if (shop.promoCount > 0)
                           StatusTag(
                             label: t('shops.promos', {'n': shop.promoCount}),
                             tone: TagTone.accentSoft,
                             small: true,
                           ),
-                        ],
                       ],
                     ),
                   ],

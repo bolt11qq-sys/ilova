@@ -43,8 +43,7 @@ class CategoryPage extends ConsumerWidget {
                       );
                     }
                     return GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(
-                          screenPadding, 4, screenPadding, 110),
+                      padding: EdgeInsets.fromLTRB(screenPadding, 4, screenPadding, bottomBarSpace(context)),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,

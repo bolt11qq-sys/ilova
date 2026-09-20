@@ -57,7 +57,7 @@ class HomePage extends ConsumerWidget {
                   const SliverToBoxAdapter(child: _PopularGrid()),
                   const SliverToBoxAdapter(child: _PromotionsStrip()),
                   const SliverToBoxAdapter(child: _RepeatCard()),
-                  const SliverToBoxAdapter(child: SizedBox(height: 110)),
+                  SliverToBoxAdapter(child: SizedBox(height: bottomBarSpace(context))),
                 ],
               ],
             ),
@@ -303,7 +303,7 @@ class _ShopsStrip extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 14),
+        const SizedBox(height: sectionGap),
         SectionHeader(
           title: t('h.shopsTitle'),
           action: t('home.seeAll'),
@@ -311,7 +311,7 @@ class _ShopsStrip extends ConsumerWidget {
         ),
         const SizedBox(height: 6),
         SizedBox(
-          height: 128,
+          height: 110,
           child: shops.when(
             loading: () => ListView(
               scrollDirection: Axis.horizontal,
@@ -397,7 +397,7 @@ class _PopularGrid extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        const SizedBox(height: sectionGap),
         SectionHeader(
           title: t('h.products'),
           action: t('h.allProducts'),
@@ -412,7 +412,8 @@ class _PopularGrid extends ConsumerWidget {
           error: (e, _) => const SizedBox.shrink(),
           data: (hits) {
             if (hits.isEmpty) return const SizedBox.shrink();
-            final shown = hits.length > 8 ? hits.sublist(0, 8) : hits;
+            // Three per row: four made the cards too small to read.
+            final shown = hits.length > 6 ? hits.sublist(0, 6) : hits;
             return GridView.builder(
               padding:
                   const EdgeInsets.symmetric(horizontal: screenPadding),
@@ -420,10 +421,10 @@ class _PopularGrid extends ConsumerWidget {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate:
                   const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 0.62,
+                crossAxisCount: 3,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.66,
               ),
               itemCount: shown.length,
               itemBuilder: (context, i) => MiniProductCard(
@@ -456,7 +457,7 @@ class _PromotionsStrip extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: sectionGap),
         SectionHeader(
           title: t('home.todayPromos'),
           action: t('home.seeAll'),

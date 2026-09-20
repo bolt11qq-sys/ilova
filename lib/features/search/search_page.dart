@@ -209,8 +209,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           );
         }
         return ListView(
-          padding: const EdgeInsets.fromLTRB(
-              screenPadding, 0, screenPadding, 110),
+          padding: EdgeInsets.fromLTRB(screenPadding, 0, screenPadding, bottomBarSpace(context)),
           children: [
             Text(
               t('se.summary', {

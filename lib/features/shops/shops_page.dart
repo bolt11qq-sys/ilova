@@ -121,8 +121,7 @@ class _ShopsPageState extends ConsumerState<ShopsPage> {
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(shopsProvider),
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(
-            screenPadding, 4, screenPadding, 110),
+        padding: EdgeInsets.fromLTRB(screenPadding, 4, screenPadding, bottomBarSpace(context)),
         itemCount: list.length + 1,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, i) {

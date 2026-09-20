@@ -265,7 +265,16 @@ class _CartPageState extends ConsumerState<CartPage> {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
+        Text(
+          t('sv.items'),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: tok.text,
+          ),
+        ),
+        const SizedBox(height: 8),
         for (final line in cart.lines) ...[
           _Line(
             line: line,
@@ -535,18 +544,19 @@ class _Line extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tok = yt(context);
+    final discounted = line.regularPrice > line.priceAtAdd;
     return YCard(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(11),
       child: Row(
         children: [
-          ProductPhoto(photo: line.photo, emoji: line.emoji, size: 56),
+          ProductPhoto(photo: line.photo, emoji: line.emoji, size: 58),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  line.name,
+                  productTitle(line.name, line.unit),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -556,15 +566,21 @@ class _Line extends StatelessWidget {
                     color: tok.text,
                   ),
                 ),
+                const SizedBox(height: 3),
+                Text(
+                  '${line.quantity} × ${formatPrice(line.priceAtAdd)}',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: discounted ? tok.coral : tok.hint,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
-                  formatPrice(line.priceAtAdd),
+                  formatPrice(line.priceAtAdd * line.quantity),
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: line.regularPrice > line.priceAtAdd
-                        ? tok.coral
-                        : tok.text,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: tok.text,
                   ),
                 ),
               ],

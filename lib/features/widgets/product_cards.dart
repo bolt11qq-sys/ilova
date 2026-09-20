@@ -109,10 +109,10 @@ class MiniProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(YRadius.card),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(7),
+          padding: const EdgeInsets.all(9),
+          // No mainAxisSize.min here: the Spacer below needs the full tile.
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
               AspectRatio(
                 aspectRatio: 1,
@@ -123,38 +123,39 @@ class MiniProductCard extends StatelessWidget {
                     ),
                     if (p.promo != null)
                       Positioned(
-                        top: 4,
-                        right: 4,
+                        top: 5,
+                        right: 5,
                         child: DiscountBadge(pct: p.promo!.discountPct),
                       ),
                   ],
                 ),
               ),
-              const SizedBox(height: 7),
+              const SizedBox(height: 9),
               Text(
                 p.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
+                  height: 1.15,
                   color: tok.text,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 3),
               Text(
                 hit.shop.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 11.5, color: tok.hint),
+                style: TextStyle(fontSize: 12, color: tok.hint),
               ),
-              const SizedBox(height: 5),
+              const Spacer(),
               Text(
                 formatPrice(p.price),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 13.5,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: p.promo != null ? tok.coral : tok.text,
                 ),

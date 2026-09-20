@@ -198,6 +198,14 @@ class YRadius {
 
 const double screenPadding = 16;
 
+/// Vertical rhythm between the sections of a page.
+const double sectionGap = 24;
+
+/// The floating bottom bar is 64 dp tall with a 10 dp margin and sits over the
+/// content, so every scrolling page has to end this far above its last item.
+double bottomBarSpace(BuildContext context) =>
+    96 + MediaQuery.paddingOf(context).bottom;
+
 /// Bundled Figtree is optional (see DECISIONS.md); when it is missing Flutter
 /// falls back to the platform font, which renders `ʻ` and `ʼ` correctly.
 const String? appFontFamily = null;

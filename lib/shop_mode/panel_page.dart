@@ -37,8 +37,7 @@ class ShopPanelPage extends ConsumerWidget {
               value: settings,
               onRetry: () => ref.invalidate(shopSettingsProvider),
               data: (s) => ListView(
-                padding: const EdgeInsets.fromLTRB(
-                    screenPadding, 8, screenPadding, 110),
+                padding: EdgeInsets.fromLTRB(screenPadding, 8, screenPadding, bottomBarSpace(context)),
                 children: [
                   _ShopHead(settings: s),
                   const SizedBox(height: 14),

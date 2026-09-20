@@ -202,8 +202,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(ordersProvider),
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-            screenPadding, 0, screenPadding, 110),
+        padding: EdgeInsets.fromLTRB(screenPadding, 0, screenPadding, bottomBarSpace(context)),
         children: [
           if (active.isNotEmpty) ...[
             heading(t('od.active')),
@@ -290,30 +289,31 @@ class OrderCard extends ConsumerWidget {
             const SizedBox(height: 10),
             OrderProgress(status: order.status),
           ],
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(
             children: [
               for (final item in visible) ...[
-                ProductPhoto(photo: item.photo, emoji: item.emoji, size: 38),
-                const SizedBox(width: 6),
+                ProductPhoto(photo: item.photo, emoji: item.emoji, size: 40),
+                const SizedBox(width: 7),
               ],
-              if (more > 0)
-                Text(
-                  t('orders.more', {'n': more}),
-                  style: TextStyle(fontSize: 12.5, color: tok.hint),
-                ),
-              const Spacer(),
-              Text(
-                formatPrice(order.total),
-                style: TextStyle(
-                  fontSize: 15.5,
-                  fontWeight: FontWeight.w800,
-                  color: tok.text,
+              Expanded(
+                child: Text(
+                  [
+                    order.items.map((i) => i.name).take(2).join(', '),
+                    if (more > 0) t('orders.more', {'n': more}),
+                  ].join(' · '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    height: 1.25,
+                    color: tok.hint,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             children: [
               Icon(
@@ -329,6 +329,15 @@ class OrderCard extends ConsumerWidget {
                     ? t('cart.delivery')
                     : t('orders.pickup'),
                 style: TextStyle(fontSize: 12.5, color: tok.hint),
+              ),
+              const Spacer(),
+              Text(
+                formatPrice(order.total),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: tok.text,
+                ),
               ),
             ],
           ),

@@ -157,8 +157,7 @@ class _CatalogTabState extends ConsumerState<_CatalogTab> {
           child: _loading
               ? const SkeletonList(count: 5, height: 60)
               : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(
-                      screenPadding, 0, screenPadding, 110),
+                  padding: EdgeInsets.fromLTRB(screenPadding, 0, screenPadding, bottomBarSpace(context)),
                   itemCount: _hits.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, i) {
@@ -336,7 +335,7 @@ class _CustomTabState extends ConsumerState<_CustomTab> {
     final tok = yt(context);
     return ListView(
       padding:
-          const EdgeInsets.fromLTRB(screenPadding, 14, screenPadding, 110),
+          EdgeInsets.fromLTRB(screenPadding, 14, screenPadding, bottomBarSpace(context)),
       children: [
         Text(S.addProduct.name,
             style: TextStyle(fontSize: 13.5, color: tok.hint)),
