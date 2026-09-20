@@ -9,8 +9,8 @@ import '../../core/strings_buyer.dart';
 import 'buttons.dart';
 
 /// Opens a scrollable bottom sheet with the project's shape and padding.
-Future<T?> showYSheet<T>(
-  BuildContext context, {
+Future<T?> showYSheet<T>({
+  required BuildContext context,
   required Widget Function(BuildContext context) builder,
   bool isScrollControlled = true,
 }) {
