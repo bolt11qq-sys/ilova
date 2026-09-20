@@ -41,12 +41,18 @@ try {
         if (Test-Path $p) { Remove-Item $p -Force }
     }
 
-    Get-ChildItem -Path $src -File | Where-Object { $_.Name -like "*.gradle*" -or $_.Name -like "gradlew*" } |
-        ForEach-Object { Copy-Item $_.FullName (Join-Path $androidDir $_.Name) -Force }
+    Get-ChildItem -Path $src -File | Where-Object {
+        $_.Name -like "*.gradle" -or $_.Name -like "*.gradle.kts" -or
+        $_.Name -eq "gradle.properties" -or $_.Name -like "gradlew*"
+    } | ForEach-Object { Copy-Item $_.FullName (Join-Path $androidDir $_.Name) -Force }
 
+    # Replace the wrapper wholesale; copying onto an existing directory would
+    # nest it as android\gradle\gradle.
     $wrapperSrc = Join-Path $src "gradle"
+    $wrapperDst = Join-Path $androidDir "gradle"
     if (Test-Path $wrapperSrc) {
-        Copy-Item $wrapperSrc (Join-Path $androidDir "gradle") -Recurse -Force
+        if (Test-Path $wrapperDst) { Remove-Item $wrapperDst -Recurse -Force }
+        Copy-Item $wrapperSrc $wrapperDst -Recurse -Force
     }
 
     Get-ChildItem -Path (Join-Path $src "app") -File | Where-Object { $_.Name -like "build.gradle*" } |

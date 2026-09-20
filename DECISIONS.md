@@ -96,9 +96,11 @@ delays off. Test code also injects a `MemoryStore`, so no test touches a plugin.
   to the device.
 * `<queries>` declares the `tel` intent so `url_launcher` can reach the dialer
   on Android 11+.
-* Release builds are signed with the debug key and run R8 with resource
-  shrinking. `proguard-rules.pro` only silences the Play Core warning that the
-  deferred-components stubs produce; the demo uses no deferred components.
+* Release builds are signed with the debug key. R8 and resource shrinking are
+  **off**: the brief says to keep them "unless it breaks", and the Play Core
+  stubs that Flutter's embedding references are the usual reason a release
+  build fails. A demo APK gains little from shrinking. `proguard-rules.pro`
+  stays in the tree for whoever turns R8 back on.
 * The Gradle files are hand-written for AGP 8.7.3 / Kotlin 2.1.0 / Gradle 8.12.
   `tool/setup_android.ps1` (and `.sh`) regenerates them from the user's own
   Flutter version if that combination does not fit.

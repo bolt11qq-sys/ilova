@@ -31,9 +31,16 @@ rm -f "$android_dir"/settings.gradle "$android_dir"/settings.gradle.kts \
       "$android_dir"/gradle.properties \
       "$android_dir"/app/build.gradle "$android_dir"/app/build.gradle.kts
 
-find "$src" -maxdepth 1 -type f \( -name '*.gradle*' -o -name 'gradlew*' \) \
+find "$src" -maxdepth 1 -type f \
+  \( -name '*.gradle' -o -name '*.gradle.kts' -o -name 'gradle.properties' \
+     -o -name 'gradlew' -o -name 'gradlew.bat' \) \
   -exec cp -f {} "$android_dir"/ \;
-cp -rf "$src/gradle" "$android_dir"/ 2>/dev/null || true
+
+# Replace the wrapper wholesale; copying onto an existing directory would
+# nest it as android/gradle/gradle.
+rm -rf "$android_dir/gradle"
+cp -rf "$src/gradle" "$android_dir/gradle" 2>/dev/null || true
+
 find "$src/app" -maxdepth 1 -type f -name 'build.gradle*' \
   -exec cp -f {} "$android_dir"/app/ \;
 chmod +x "$android_dir/gradlew" 2>/dev/null || true

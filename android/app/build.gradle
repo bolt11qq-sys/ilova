@@ -41,9 +41,11 @@ android {
         release {
             // Debug keys are fine for a demo APK; swap in a real keystore to ship.
             signingConfig = signingConfigs.debug
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            // R8 is off: it is the usual reason a Flutter release build fails on
+            // the Play Core stubs, and a demo APK gains little from shrinking.
+            // See DECISIONS.md.
+            minifyEnabled = false
+            shrinkResources = false
         }
     }
 }

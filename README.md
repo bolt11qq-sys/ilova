@@ -37,7 +37,7 @@ flutter build apk --release --split-per-abi
 ```
 
 Release builds are signed with the debug key — fine for a demo, not for a store
-listing. R8/resource shrinking is on.
+listing. R8 and resource shrinking are off (see DECISIONS.md).
 
 ### If Gradle complains
 
